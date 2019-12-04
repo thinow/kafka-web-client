@@ -1,4 +1,4 @@
-.PHONY: setup install lock
+.PHONY: setup lock install run
 
 # source : https://stackoverflow.com/questions/10858261/abort-makefile-if-variable-not-set
 check_defined = \
@@ -11,10 +11,14 @@ __check_defined = \
 setup:
 	python3 -m venv venv
 
+lock:
+	$(call check_defined, VIRTUAL_ENV, please use a virtual environment)
+	pip freeze > requirements.txt
+
 install:
 	$(call check_defined, VIRTUAL_ENV, please use a virtual environment)
 	pip install -r requirements.txt
 
-lock:
+run:
 	$(call check_defined, VIRTUAL_ENV, please use a virtual environment)
-	pip freeze > requirements.txt
+	python web_server.py
