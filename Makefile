@@ -9,7 +9,7 @@ __check_defined = \
       $(error Undefined $1$(if $2, ($2))))
 
 setup:
-	python3 -m venv venv
+	python3.7 -m venv venv
 
 lock:
 	$(call check_defined, VIRTUAL_ENV, please use a virtual environment)
@@ -19,6 +19,5 @@ install:
 	$(call check_defined, VIRTUAL_ENV, please use a virtual environment)
 	pip install -r requirements.txt
 
-run:
-	$(call check_defined, VIRTUAL_ENV, please use a virtual environment)
-	python web_server.py
+run: install
+	python src/application.py
