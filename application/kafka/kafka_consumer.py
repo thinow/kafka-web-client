@@ -1,12 +1,20 @@
-from confluent_kafka import Consumer
+import uuid
 
-consumer = Consumer({
+import confluent_kafka
+
+CONFIG = {
     'bootstrap.servers': 'localhost:9092',
-    'group.id': 'my-group',
+    'group.id': str(uuid.uuid4()),
     'auto.offset.reset': 'earliest'
-})
+}
 
+print('Initializing...')
+consumer = confluent_kafka.Consumer(CONFIG)
+
+print('Subscribing...')
 consumer.subscribe(['mytopic'])
+
+print('Starting to poll...')
 
 while True:
     msg = consumer.poll(1.0)
