@@ -20,4 +20,4 @@ install:
 	pip install -r requirements.txt
 
 run: install
-	python src/application.py
+	python -m application.runner

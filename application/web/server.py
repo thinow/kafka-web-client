@@ -1,8 +1,8 @@
 from flask import Flask
 
-server = Flask(__name__)
+web_server = Flask(__name__)
 
 
-@server.route('/')
+@web_server.route('/')
 def hello_world():
     return 'Hello, World!'
