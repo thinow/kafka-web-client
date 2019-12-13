@@ -1,8 +1,14 @@
+import logging
 import os
 
-from .web.server import web_server
+from .web.server import WebServer
 
-port = int(os.getenv('PORT', 5000))
+PORT = int(os.getenv('PORT', 5000))
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(message)s'
+)
 
 if __name__ == '__main__':
-    web_server.run(port=port)
+    WebServer().run(PORT)

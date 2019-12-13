@@ -1,6 +1,6 @@
 import unittest
 
-from .web.server import web_server
+from .web.server import app
 
 
 class DummyTest(unittest.TestCase):
@@ -9,4 +9,4 @@ class DummyTest(unittest.TestCase):
         self.assertTrue(True)
 
     def test_something_else(self):
-        self.assertNotEqual(web_server, None)
+        self.assertNotEqual(app, None)
