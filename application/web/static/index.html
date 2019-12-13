@@ -8,6 +8,28 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
             integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
     <script type="text/javascript" charset="utf-8">
+        const MAX_NUMBER_OF_MESSAGES = 50
+
+        function getElement(id) {
+            return document.getElementById(id)
+        }
+
+        function clearTable() {
+            const table = getElement("messages-table")
+            const body = table.getElementsByTagName('tbody')[0]
+            table.replaceChild(document.createElement('tbody'), body)
+        }
+
+        function addInTable(message) {
+            const table = getElement("messages-table")
+            const body = table.getElementsByTagName('tbody')[0]
+            const row = body.insertRow()
+
+            row.insertCell(0).appendChild(document.createTextNode(message.index))
+            row.insertCell(1).appendChild(document.createTextNode(message.datetime))
+            row.insertCell(2).appendChild(document.createTextNode(JSON.stringify(message.content)))
+        }
+
         const socket = io()
 
         socket.on('connect', function () {
@@ -16,26 +38,32 @@
 
         socket.on('consumed-message', function (message) {
             console.log('socket: consumed-message', message)
-            // TODO update the progress bar
+            getElement("messages-table").style.display = null
+            getElement("progress-bar").value += 100 / MAX_NUMBER_OF_MESSAGES
+            addInTable(message)
         })
 
         socket.on('end', function () {
             console.log('socket: end')
-            // TODO re-enable the button
+            getElement("progress-bar").value = 100
+            getElement("start-button").className = getElement("start-button").className.replace(" is-loading", "")
         })
 
         const onStartButtonClick = function () {
             console.log("start-button: click")
-            // TODO disable the button
+            getElement("start-button").className += " is-loading"
+            getElement("progress-bar").value = 0
+            getElement("messages-table").style.display = 'none'
+            clearTable()
             socket.emit('start', {
                 cluster: 'localhost:9092',
-                max: 50
+                max: MAX_NUMBER_OF_MESSAGES
             })
         }
 
         function onLoad() {
             console.log("onLoad()")
-            document.getElementById("start-button").addEventListener("click", onStartButtonClick)
+            getElement("start-button").addEventListener("click", onStartButtonClick)
         }
     </script>
 </head>
@@ -48,14 +76,14 @@
 <section class="section">
     <div class="container">
         <div class="content">
-            <p>Fetch 50 messages from <strong>localhost:9092</strong></p>
+            <p>Click on <i>Start</i> to fetch up to 50 messages from <b>localhost:9092</b></p>
             <button id="start-button" class="button is-primary">Start</button>
         </div>
         <div class="content">
-            <progress class="progress is-primary" value="33" max="100">33%</progress>
+            <progress id="progress-bar" class="progress is-primary" value="0" max="100">progress</progress>
         </div>
         <div class="content">
-            <table class="table">
+            <table id="messages-table" class="table" style="display: none">
                 <thead>
                 <tr>
                     <th>Index</th>
@@ -70,82 +98,10 @@
                     <th>Content</th>
                 </tr>
                 </tfoot>
-                <tbody>
-                <tr>
-                    <th>1</th>
-                    <td>1 minute ago</td>
-                    <td class="is-family-code">{ "Lorem" : "ipsum", "dolor" : "sit", "amet" : "consectetur",
-                        "adipiscing" : "elit" }
-                    </td>
-                </tr>
-                <tr>
-                    <th>2</th>
-                    <td>1 minute ago</td>
-                    <td class="is-family-code">{ "Lorem" : "ipsum", "dolor" : "sit", "amet" : "consectetur",
-                        "adipiscing" : "elit" }
-                    </td>
-                </tr>
-                <tr>
-                    <th>3</th>
-                    <td>2 minutes ago</td>
-                    <td class="is-family-code">{ "Lorem" : "ipsum", "dolor" : "sit", "amet" : "consectetur",
-                        "adipiscing" : "elit" }
-                    </td>
-                </tr>
-                <tr>
-                    <th>4</th>
-                    <td>2 minutes ago</td>
-                    <td class="is-family-code">{ "Lorem" : "ipsum", "dolor" : "sit", "amet" : "consectetur",
-                        "adipiscing" : "elit" }
-                    </td>
-                </tr>
-                <tr>
-                    <th>5</th>
-                    <td>2020-01-01 12:30:00</td>
-                    <td class="is-family-code">{ "Lorem" : "ipsum", "dolor" : "sit", "amet" : "consectetur",
-                        "adipiscing" : "elit" }
-                    </td>
-                </tr>
-                <tr>
-                    <th>6</th>
-                    <td>2020-01-01 12:30:00</td>
-                    <td class="is-family-code">{ "Lorem" : "ipsum", "dolor" : "sit", "amet" : "consectetur",
-                        "adipiscing" : "elit" }
-                    </td>
-                </tr>
-                <tr>
-                    <th>7</th>
-                    <td>2020-01-01 12:30:00</td>
-                    <td class="is-family-code">{ "Lorem" : "ipsum", "dolor" : "sit", "amet" : "consectetur",
-                        "adipiscing" : "elit" }
-                    </td>
-                </tr>
-                <tr>
-                    <th>8</th>
-                    <td>2020-01-01 12:30:00</td>
-                    <td class="is-family-code">{ "Lorem" : "ipsum", "dolor" : "sit", "amet" : "consectetur",
-                        "adipiscing" : "elit" }
-                    </td>
-                </tr>
-                <tr>
-                    <th>9</th>
-                    <td>2020-01-01 12:30:00</td>
-                    <td class="is-family-code">{ "Lorem" : "ipsum", "dolor" : "sit", "amet" : "consectetur",
-                        "adipiscing" : "elit" }
-                    </td>
-                </tr>
-                <tr>
-                    <th>10</th>
-                    <td>2020-01-01 12:30:00</td>
-                    <td class="is-family-code">{ "Lorem" : "ipsum", "dolor" : "sit", "amet" : "consectetur",
-                        "adipiscing" : "elit" }
-                    </td>
-                </tr>
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
     </div>
 </section>
-
 </body>
 </html>

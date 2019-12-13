@@ -32,11 +32,11 @@ def disconnect():
 @socket_io.on('start')
 def test_message(message):
     time.sleep(.800)
-    emit('consumed-message', {'position': 1, 'datetime': 'now', 'content': {'key': 'value'}})
+    emit('consumed-message', {'index': 1, 'datetime': 'now', 'content': {'key': 'value'}})
     time.sleep(.800)
-    emit('consumed-message', {'position': 2, 'datetime': 'now', 'content': {'key': 'value'}})
+    emit('consumed-message', {'index': 2, 'datetime': 'now', 'content': {'key': 'value'}})
     time.sleep(.800)
-    emit('consumed-message', {'position': 3, 'datetime': 'now', 'content': {'key': 'value'}})
+    emit('consumed-message', {'index': 3, 'datetime': 'now', 'content': {'key': 'value'}})
     emit('end')
 
 
