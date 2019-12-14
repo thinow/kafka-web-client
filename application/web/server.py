@@ -1,8 +1,9 @@
 import logging
-import time
 
 from flask import Flask, redirect
 from flask_socketio import SocketIO, emit
+
+from ..kafka.consumer import KafkaConsumer
 
 app = Flask(
     __name__,
@@ -10,7 +11,7 @@ app = Flask(
     static_url_path=''
 )
 
-app.config['SECRET_KEY'] = 'aSilLySECr3t!?!'  # TODO get from a variable
+app.config['SECRET_KEY'] = 'aSilLySECr3t!?!'  # TODO get from an environment variable
 socket_io = SocketIO(app)
 
 
@@ -19,27 +20,20 @@ def main_page():
     return redirect("index.html")
 
 
-@socket_io.on('connect')
-def connect():
-    logging.info("Client connected")
-
-
-@socket_io.on('disconnect')
-def disconnect():
-    logging.info("Client disconnected")
-
-
 @socket_io.on('start')
-def test_message(message):
-    time.sleep(.800)
-    emit('consumed-message', {'index': 1, 'datetime': 'now', 'content': {'key': 'value'}})
-    time.sleep(.800)
-    emit('consumed-message', {'index': 2, 'datetime': 'now', 'content': {'key': 'value'}})
-    time.sleep(.800)
-    emit('consumed-message', {'index': 3, 'datetime': 'now', 'content': {'key': 'value'}})
-    emit('end')
+def start(request):
+    logging.info(f"socket : received event start. request={request}")
+    consumer = KafkaConsumer(
+        cluster=request['cluster'],
+        topic=request['topic'],
+        max_messages=request['max_messages']
+    )
+    consumer.consume(
+        on_consumed_message=lambda message: emit('consumed-message', message),
+        on_end=lambda: emit('end')
+    )
 
 
 class WebServer:
-    def run(self, port):
+    def start(self, port: int) -> None:
         socket_io.run(app, port=port)

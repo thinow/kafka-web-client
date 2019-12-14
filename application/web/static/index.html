@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -27,7 +27,7 @@
 
             row.insertCell(0).appendChild(document.createTextNode(message.index))
             row.insertCell(1).appendChild(document.createTextNode(message.datetime))
-            row.insertCell(2).appendChild(document.createTextNode(JSON.stringify(message.content)))
+            row.insertCell(2).appendChild(document.createTextNode(message.value))
         }
 
         const socket = io()
@@ -57,7 +57,8 @@
             clearTable()
             socket.emit('start', {
                 cluster: 'localhost:9092',
-                max: MAX_NUMBER_OF_MESSAGES
+                topic: 'mytopic',
+                max_messages: MAX_NUMBER_OF_MESSAGES
             })
         }
 
@@ -88,14 +89,14 @@
                 <tr>
                     <th>Index</th>
                     <th>Time</th>
-                    <th>Content</th>
+                    <th>Value</th>
                 </tr>
                 </thead>
                 <tfoot>
                 <tr>
                     <th>Index</th>
                     <th>Time</th>
-                    <th>Content</th>
+                    <th>Value</th>
                 </tr>
                 </tfoot>
                 <tbody></tbody>
