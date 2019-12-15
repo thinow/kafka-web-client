@@ -1,4 +1,6 @@
-.PHONY: setup lock install test run
+.PHONY: setup lock install test run build
+
+VERSION=$(shell git log -1 --pretty=format:"%H" | cut -c -16)
 
 # source : https://stackoverflow.com/questions/10858261/abort-makefile-if-variable-not-set
 check_defined = \
@@ -24,3 +26,10 @@ test: install
 
 run: install
 	python -m application.runner
+
+build:
+	rm -rf ./build/context
+	mkdir -p ./build/context
+	cp -Rv application ./build/context
+	cp -v requirements.txt ./build/context
+	docker build -t not-named-yet:$(VERSION) ./build

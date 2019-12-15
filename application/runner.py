@@ -3,7 +3,7 @@ import os
 
 from .web.server import WebServer
 
-PORT: int = int(os.getenv('PORT', 5000))
+PORT: int = int(os.getenv('PORT', 8080))
 
 logging.basicConfig(
     level=logging.INFO,
