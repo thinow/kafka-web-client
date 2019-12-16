@@ -4,6 +4,8 @@ LABEL description="Kafka Web Client to watch, filter, and browse messages consum
       maintainer="Thierry Nowak" \
       email="thinow@gmail.com"
 
+ENV HOST 0.0.0.0
+
 RUN apk --no-cache add \
     gcc=~8.3 \
     musl-dev=~1.1 \

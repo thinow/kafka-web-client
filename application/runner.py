@@ -3,6 +3,7 @@ import os
 
 from .web.server import WebServer
 
+HOST: str = os.getenv('HOST', 'localhost')
 PORT: int = int(os.getenv('PORT', 8080))
 
 logging.basicConfig(
@@ -11,4 +12,4 @@ logging.basicConfig(
 )
 
 if __name__ == '__main__':
-    WebServer().start(PORT)
+    WebServer().start(HOST, PORT)

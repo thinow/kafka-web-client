@@ -35,5 +35,5 @@ def start(request):
 
 
 class WebServer:
-    def start(self, port: int) -> None:
-        socket_io.run(app, port=port)
+    def start(self, host: str, port: int) -> None:
+        socket_io.run(app, host=host, port=port)
