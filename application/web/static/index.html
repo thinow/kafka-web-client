@@ -26,8 +26,9 @@
             const row = body.insertRow()
 
             row.insertCell(0).appendChild(document.createTextNode(message.index))
-            row.insertCell(1).appendChild(document.createTextNode(message.datetime))
-            row.insertCell(2).appendChild(document.createTextNode(message.value))
+            row.insertCell(1).appendChild(document.createTextNode(message.offset))
+            row.insertCell(2).appendChild(document.createTextNode(message.timestamp))
+            row.insertCell(3).appendChild(document.createTextNode(message.value))
         }
 
         const socket = io()
@@ -88,6 +89,7 @@
                 <thead>
                 <tr>
                     <th>Index</th>
+                    <th>Offset</th>
                     <th>Time</th>
                     <th>Value</th>
                 </tr>
@@ -95,6 +97,7 @@
                 <tfoot>
                 <tr>
                     <th>Index</th>
+                    <th>Offset</th>
                     <th>Time</th>
                     <th>Value</th>
                 </tr>

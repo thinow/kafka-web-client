@@ -1,6 +1,18 @@
 import uuid
+from datetime import datetime
 
 from confluent_kafka import Consumer as ConfluentConsumer
+from confluent_kafka import TIMESTAMP_NOT_AVAILABLE
+
+
+def find_timestamp(message):
+    (type, value) = message.timestamp()
+    if type == TIMESTAMP_NOT_AVAILABLE:
+        return None
+    else:
+        date = datetime.utcfromtimestamp(value / 1000)
+        # TODO return a standard format
+        return date.strftime('%c')
 
 
 class KafkaConsumer:
@@ -21,7 +33,8 @@ class KafkaConsumer:
                 message = internal_consumer.poll()
                 on_consumed_message({
                     'index': index,
-                    'datetime': 'unknown',  # TODO get value from kafka
+                    'offset': message.offset(),
+                    'timestamp': find_timestamp(message),
                     'value': message.value().decode('utf-8')
                 })
             on_end()
