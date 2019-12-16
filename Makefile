@@ -1,6 +1,8 @@
-.PHONY: setup lock install test run build
+.PHONY: setup lock install test run prepare-build build
 
-VERSION=$(shell git log -1 --pretty=format:"%H" | cut -c -16)
+APP_DIRECTORY=./application
+BUILD_CONTEXT_DIRECTORY=./build/context
+VERSION=$(shell date +%Y%m%d)
 
 # source : https://stackoverflow.com/questions/10858261/abort-makefile-if-variable-not-set
 check_defined = \
@@ -27,9 +29,18 @@ test: install
 run: install
 	python -m application.runner
 
-build:
-	rm -rf ./build/context
-	mkdir -p ./build/context
-	cp -Rv application ./build/context
-	cp -v requirements.txt ./build/context
+prepare-build:
+	@echo Creating build context directory...
+	rm -rf $(BUILD_CONTEXT_DIRECTORY)
+	mkdir -p $(BUILD_CONTEXT_DIRECTORY)
+	@echo Copying application files into the build context directory...
+	cp -Rv application requirements.txt $(BUILD_CONTEXT_DIRECTORY)
+	@echo Removing files from the build context directory...
+	find $(BUILD_CONTEXT_DIRECTORY) \
+	    -name __pycache__ \
+	    -or -name *.cpython* \
+	    -or -name test_*.py \
+	    | xargs rm -rfv
+
+build: prepare-build
 	docker build -t not-named-yet:$(VERSION) ./build
