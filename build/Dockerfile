@@ -1,6 +1,6 @@
 FROM python:3.7-alpine3.10
 
-LABEL description="TBD" \
+LABEL description="Kafka Web Client to watch, filter, and browse messages consumed from Kafka." \
       maintainer="Thierry Nowak" \
       email="thinow@gmail.com"
 
@@ -9,12 +9,12 @@ RUN apk --no-cache add \
     musl-dev=~1.1 \
     librdkafka-dev=~1.0
 
-RUN mkdir -p /opt/not-named-yet
+RUN mkdir -p /opt/kafka-web-client
 
-COPY context/application /opt/not-named-yet/application
-COPY context/requirements.txt /opt/not-named-yet/requirements.txt
+COPY context/application /opt/kafka-web-client/application
+COPY context/requirements.txt /opt/kafka-web-client/requirements.txt
 
-WORKDIR /opt/not-named-yet
+WORKDIR /opt/kafka-web-client
 
 RUN pip install -r requirements.txt
 

@@ -2,6 +2,7 @@
 
 APP_DIRECTORY=./application
 BUILD_CONTEXT_DIRECTORY=./build/context
+DOCKER_IMAGE_NAME=kafka-web-client
 VERSION=$(shell date +%Y%m%d)
 
 # source : https://stackoverflow.com/questions/10858261/abort-makefile-if-variable-not-set
@@ -43,4 +44,5 @@ prepare-build:
 	    | xargs rm -rfv
 
 build: prepare-build
-	docker build -t not-named-yet:$(VERSION) ./build
+	$(call check_defined, DOCKER_IMAGE_PREFIX)
+	docker build -t $(DOCKER_IMAGE_PREFIX)/$(DOCKER_IMAGE_NAME):$(VERSION) ./build
