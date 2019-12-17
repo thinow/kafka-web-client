@@ -4,11 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Kafka Web Client</title>
-    <link rel="stylesheet" href="bulma@0.8.0.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
             integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
     <script type="text/javascript" charset="utf-8">
-        const MAX_NUMBER_OF_MESSAGES = 50
+        const parameters = {
+            cluster: '',
+            topic: '',
+            max_messages: 10
+        }
 
         function getElement(id) {
             return document.getElementById(id)
@@ -40,7 +44,7 @@
         socket.on('consumed-message', function (message) {
             console.log('socket: consumed-message', message)
             getElement("messages-table").style.display = null
-            getElement("progress-bar").value += 100 / MAX_NUMBER_OF_MESSAGES
+            getElement("progress-bar").value += 100 / parameters.max_messages
             addInTable(message)
         })
 
@@ -50,21 +54,26 @@
             getElement("start-button").className = getElement("start-button").className.replace(" is-loading", "")
         })
 
+        const onFieldChanged = function (name, event) {
+            parameters[name] = event.target.value
+            parameters.max_messages = 1 * parameters.max_messages // enforce the numeric type
+            getElement("start-button").disabled = !parameters.cluster || !parameters.topic
+        }
+
         const onStartButtonClick = function () {
             console.log("start-button: click")
             getElement("start-button").className += " is-loading"
             getElement("progress-bar").value = 0
             getElement("messages-table").style.display = 'none'
             clearTable()
-            socket.emit('start', {
-                cluster: 'localhost:9092',
-                topic: 'mytopic',
-                max_messages: MAX_NUMBER_OF_MESSAGES
-            })
+            socket.emit('start', parameters)
         }
 
         function onLoad() {
             console.log("onLoad()")
+            getElement("field-cluster").addEventListener("keyup", event => onFieldChanged('cluster', event))
+            getElement("field-topic").addEventListener("keyup", event => onFieldChanged('topic', event))
+            getElement("field-maxNumberMessages").addEventListener("change", event => onFieldChanged('max_messages', event))
             getElement("start-button").addEventListener("click", onStartButtonClick)
         }
     </script>
@@ -78,8 +87,32 @@
 <section class="section">
     <div class="container">
         <div class="content">
-            <p>Click on <i>Start</i> to fetch up to 50 messages from <b>localhost:9092</b></p>
-            <button id="start-button" class="button is-primary">Start</button>
+            <div class="field">
+                <label class="label">Cluster</label>
+                <div class="control">
+                    <input id="field-cluster" class="input" type="text" placeholder="e.g broker:9092">
+                </div>
+            </div>
+            <div class="field">
+                <label class="label">Topic</label>
+                <div class="control">
+                    <input id="field-topic" class="input" type="text" placeholder="e.g. my-topic">
+                </div>
+            </div>
+            <div class="field">
+                <label class="label">Expected number of messages</label>
+                <div class="control">
+                    <div class="select">
+                        <select id="field-maxNumberMessages">
+                            <option selected>10</option>
+                            <option>25</option>
+                            <option>50</option>
+                            <option>100</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <button id="start-button" class="button is-primary" disabled>Start</button>
         </div>
         <div class="content">
             <progress id="progress-bar" class="progress is-primary" value="0" max="100">progress</progress>
