@@ -25,7 +25,7 @@ install:
 	pip install -r requirements.txt
 
 test: install
-	python -m unittest
+	pytest -vv
 
 run: install
 	python -m application.runner
@@ -40,8 +40,7 @@ prepare-build:
 	find $(BUILD_CONTEXT_DIRECTORY) \
 	    -name __pycache__ \
 	    -or -name *.cpython* \
-	    -or -name test_*.py \
 	    | xargs rm -rfv
 
-build: prepare-build
+build: test prepare-build
 	docker build -t $(DOCKER_IMAGE_NAME):$(VERSION) ./build

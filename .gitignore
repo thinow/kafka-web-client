@@ -1,4 +1,5 @@
 __pycache__/
 /venv/
 /build/context/
-/resources/docker-compose/
+/tests/fixtures/kafka/
+/tests/fixtures/zookeeper/
