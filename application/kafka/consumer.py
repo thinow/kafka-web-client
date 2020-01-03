@@ -6,8 +6,8 @@ from confluent_kafka import TIMESTAMP_NOT_AVAILABLE
 
 
 def find_timestamp(message):
-    (type, value) = message.timestamp()
-    if type == TIMESTAMP_NOT_AVAILABLE:
+    (timestamp_type, value) = message.timestamp()
+    if timestamp_type == TIMESTAMP_NOT_AVAILABLE:
         return None
     else:
         date = datetime.utcfromtimestamp(value / 1000)

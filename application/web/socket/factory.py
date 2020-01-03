@@ -14,7 +14,7 @@ def create_socket_app(http_app):
         consumer = KafkaConsumer(
             cluster=request['cluster'],  # TODO rename to server
             topic=request['topic'],
-            max_messages=request['max_messages']
+            max_messages=request['max_messages']  # TODO move the argument to the consume method
         )
         consumer.consume(
             on_consumed_message=lambda message: emit('consumed-message', message),
