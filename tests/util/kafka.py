@@ -1,9 +1,12 @@
-from confluent_kafka import Producer
+from kafka import KafkaProducer as Producer
 
 
 class KafkaProducer:
     def produce(self, server: str, topic: str, messages: tuple):
-        producer = Producer({'bootstrap.servers': server})
-        for message in messages:
-            producer.produce(topic, message)
-        producer.flush()  # wait all messages to be delivered
+        producer = Producer(bootstrap_servers=server)
+        try:
+            for message in messages:
+                future = producer.send(topic, bytes(message, 'utf-8'))
+                future.get()  # wait until the message is sent
+        finally:
+            producer.close()
