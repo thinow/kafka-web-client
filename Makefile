@@ -13,6 +13,10 @@ __check_defined = \
     $(if $(value $1),, \
       $(error Undefined $1$(if $2, ($2))))
 
+init:
+	docker run --rm -u gradle -v "$PWD":/home/gradle/project -w /home/gradle/project gradle:jdk13 gradle init
+
+
 setup:
 	python3.7 -m venv venv
 

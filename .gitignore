@@ -1,5 +1,9 @@
-__pycache__/
-/venv/
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
 /build/context/
 /tests/fixtures/kafka/
 /tests/fixtures/zookeeper/
