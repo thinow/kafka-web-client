@@ -47,4 +47,4 @@ prepare-build:
 	    | xargs rm -rfv
 
 build: test prepare-build
-	docker build -t $(DOCKER_IMAGE_NAME):$(VERSION) ./build
+	docker build -t $(DOCKER_IMAGE_NAME):$(VERSION) ./docker
