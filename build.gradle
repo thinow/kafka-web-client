@@ -1,19 +1,24 @@
-apply plugin: "java"
-apply plugin: "application"
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.2.4.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+}
 
 sourceCompatibility = 1.13
 targetCompatibility = 1.13
-
-mainClassName = "kafkawebclient.Main"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testCompile "junit:junit:4.13"
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation "junit:junit:4.13"
 }
 
-jar {
-    archiveFileName = 'kafka-web-client.jar'
+test {
+    useJUnitPlatform()
 }
