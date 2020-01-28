@@ -1,7 +1,10 @@
 apply plugin: "java"
+apply plugin: "application"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+mainClassName = "kafkawebclient.Main"
 
 repositories {
     mavenCentral()
@@ -9,4 +12,8 @@ repositories {
 
 dependencies {
     testCompile "junit:junit:4.13"
+}
+
+jar {
+    archiveFileName = 'kafka-web-client.jar'
 }
