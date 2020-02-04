@@ -25,7 +25,7 @@ public class HelloControllerIntegrationTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        this.base = new URL(String.format("http://localhost:%d/", port));
+        this.base = new URL(String.format("http://localhost:%d/http/hello", port));
     }
 
     @Test
