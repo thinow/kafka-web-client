@@ -33,7 +33,7 @@ public class GreetingControllerIntegrationTest {
     public void setUp() throws Exception {
         client = createWebSocketClient();
 
-        final String url = String.format("ws://127.0.0.1:%d/gs-guide-websocket", port);
+        final String url = String.format("ws://127.0.0.1:%d/stomp", port);
         session = client.connect(url, new SimpleStompSessionHandler()).get();
     }
 
