@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.2.4.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'io.freefair.lombok' version '4.1.6'
 }
 
 sourceCompatibility = 1.13

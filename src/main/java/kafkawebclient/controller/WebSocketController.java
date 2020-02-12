@@ -2,6 +2,8 @@ package kafkawebclient.controller;
 
 import kafkawebclient.model.ConsumedMessage;
 import kafkawebclient.model.StartConsumingRequest;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -34,15 +36,9 @@ public class WebSocketController {
         return new ConsumedMessage(123, 456, Instant.now().toString(), new AnyObject(request.getTopic()));
     }
 
+    @Data
+    @AllArgsConstructor
     static class AnyObject {
         private String innerValue;
-
-        public AnyObject(String innerValue) {
-            this.innerValue = innerValue;
-        }
-
-        public String getInnerValue() {
-            return innerValue;
-        }
     }
 }
