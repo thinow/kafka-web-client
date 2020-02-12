@@ -1,5 +1,7 @@
 package kafkawebclient;
 
+import kafkawebclient.model.ConsumedMessage;
+import kafkawebclient.model.StartConsumingRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,10 +20,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import static kafkawebclient.config.WebSocketConfig.QUEUES_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class GreetingControllerIntegrationTest {
+public class WebSocketControllerIntegrationTest {
 
     @LocalServerPort
     private int port;
@@ -59,20 +62,25 @@ public class GreetingControllerIntegrationTest {
 
     @Test
     public void receivesMessageFromSubscribedQueue() throws Exception {
-        //given
-        CompletableFuture<Greeting> future = new CompletableFuture<>();
+        // given
+        final CompletableFuture<ConsumedMessage> response = subscribe(
+                QUEUES_PREFIX + "/consumed-message", ConsumedMessage.class);
+        final CompletableFuture<Object> end = subscribe(
+                QUEUES_PREFIX + "/end", Object.class);
 
-        session.subscribe(
-                "/topic/greetings",
-                new GenericStompFrameHandler<>(Greeting.class, future::complete)
-        );
+        // when
+        session.send("/start", new StartConsumingRequest("cluster", "topic", "10"));
+        waitFor(response);
+        waitFor(end);
 
-        //when
-        session.send("/app/hello", new HelloMessage("Sam"));
+        // then
+        assertThat(response.get().getTimestamp()).isNotEmpty();
+    }
 
-        //then
-        final Greeting message = future.get(2, TimeUnit.SECONDS);
-        assertThat(message.getContent()).isEqualTo("Hello, Sam!");
+    private <T> CompletableFuture<T> subscribe(String queue, Class<T> type) {
+        final CompletableFuture<T> future = new CompletableFuture<>();
+        session.subscribe(queue, new GenericStompFrameHandler<T>(type, future::complete));
+        return future;
     }
 
     public static class GenericStompFrameHandler<T> implements StompFrameHandler {
@@ -94,5 +102,9 @@ public class GreetingControllerIntegrationTest {
         public void handleFrame(StompHeaders headers, Object payload) {
             frameHandler.accept(payloadType.cast(payload));
         }
+    }
+
+    private <T> T waitFor(CompletableFuture<T> future) throws InterruptedException, java.util.concurrent.ExecutionException, java.util.concurrent.TimeoutException {
+        return future.get(2, TimeUnit.SECONDS);
     }
 }
