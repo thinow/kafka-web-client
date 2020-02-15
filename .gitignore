@@ -1,9 +1,2 @@
-# Ignore Gradle project-specific cache directory
+/build
 .gradle
-
-# Ignore Gradle build output directory
-build
-
-/docker/context/
-/tests/fixtures/kafka/
-/tests/fixtures/zookeeper/
