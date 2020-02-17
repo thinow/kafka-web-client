@@ -1,24 +1,30 @@
 package kafkawebclient;
 
-import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Properties;
 
-public class MessageProducer {
+import static java.lang.String.format;
+
+public class KafkaProducer {
 
     private final static String BOOTSTRAP_SERVERS = "127.0.0.1:9092";
-    private final static String TOPIC = "my-example-topic";
-    private static final int MESSAGES_COUNT = 5;
+    private final static String TOPIC = "foo";
+    private static final int MESSAGES_COUNT = 12;
 
     public static void main(String... args) throws Exception {
         final Producer<Long, String> producer = createProducer();
         long time = System.currentTimeMillis();
 
         try {
-            for (long index = time; index < time + MESSAGES_COUNT; index++) {
-                final ProducerRecord<Long, String> record = new ProducerRecord<>(TOPIC, index, "{\"key\":\"value\"}");
+            for (long index = 0; index < MESSAGES_COUNT; index++) {
+                final ProducerRecord<Long, String> record = new ProducerRecord<>(TOPIC, index,
+                        format("{\"key\":\"value\",\"index\":%d}", index));
 
                 RecordMetadata metadata = producer.send(record).get();
 
@@ -40,6 +46,6 @@ public class MessageProducer {
         props.put(ProducerConfig.CLIENT_ID_CONFIG, "KafkaExampleProducer");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        return new KafkaProducer<>(props);
+        return new org.apache.kafka.clients.producer.KafkaProducer<>(props);
     }
 }
