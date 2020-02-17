@@ -8,5 +8,5 @@ import lombok.Data;
 public class StartConsumingRequest {
     private String cluster;
     private String topic;
-    private String maxMessages; // TODO change the type to Long
+    private long maxMessages;
 }

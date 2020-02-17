@@ -69,7 +69,7 @@ public class WebSocketControllerIntegrationTest {
                 QUEUES_PREFIX + "/end", Object.class);
 
         // when
-        session.send("/start", new StartConsumingRequest("cluster", "topic", "10"));
+        session.send("/start", new StartConsumingRequest("cluster", "topic", 10L));
         waitFor(response);
         waitFor(end);
 
