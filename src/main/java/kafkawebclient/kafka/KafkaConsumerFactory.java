@@ -23,14 +23,14 @@ public class KafkaConsumerFactory {
     }
 
     private static Properties createProperties(final String bootstrapServers) {
-        final Properties props = new Properties();
-        props.put(BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(GROUP_ID_CONFIG, generateGroupID());
-        props.put(KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class.getName());
-        props.put(VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(ENABLE_AUTO_COMMIT_CONFIG, false);
-        return props;
+        final Properties properties = new Properties();
+        properties.put(BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        properties.put(GROUP_ID_CONFIG, generateGroupID());
+        properties.put(KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class.getName());
+        properties.put(VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        properties.put(AUTO_OFFSET_RESET_CONFIG, "earliest");
+        properties.put(ENABLE_AUTO_COMMIT_CONFIG, false);
+        return properties;
     }
 
     private static String generateGroupID() {

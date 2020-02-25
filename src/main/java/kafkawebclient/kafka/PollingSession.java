@@ -41,15 +41,21 @@ public class PollingSession implements AutoCloseable {
             LongStream.range(0L, count)
                     .mapToObj(index -> iterator.next())
                     .map(record -> new ConsumedMessage(
+                            0L, // TODO replace index with partition and offset
                             record.offset(),
-                            record.offset(),
-                            Instant.ofEpochMilli(record.timestamp()).toString(),
+                            computeUserReadableTimestamp(record),
                             record.value()
                     ))
                     .forEach(callback);
 
             remaining -= count;
         }
+    }
+
+    private String computeUserReadableTimestamp(ConsumerRecord<?, ?> record) {
+        // TODO evaluate the timestamp type to compute a value
+        final long timestamp = record.timestamp();
+        return Instant.ofEpochMilli(timestamp).toString();
     }
 
     @Override
