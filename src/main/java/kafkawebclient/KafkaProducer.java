@@ -23,7 +23,7 @@ public class KafkaProducer {
 
         try {
             for (long index = 0; index < MESSAGES_COUNT; index++) {
-                final ProducerRecord<Long, String> record = new ProducerRecord<>(TOPIC, index,
+                final ProducerRecord<Long, String> record = new ProducerRecord<>(TOPIC, time + index,
                         format("{\"key\":\"value\",\"index\":%d}", index));
 
                 RecordMetadata metadata = producer.send(record).get();

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Properties;
+import java.util.UUID;
 
 import static org.apache.kafka.clients.consumer.ConsumerConfig.*;
 
@@ -24,12 +25,15 @@ public class KafkaConsumerFactory {
     private static Properties createProperties(final String bootstrapServers) {
         final Properties props = new Properties();
         props.put(BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(GROUP_ID_CONFIG, "KafkaWebClient");
-        props.put(ENABLE_AUTO_COMMIT_CONFIG, false);
+        props.put(GROUP_ID_CONFIG, generateGroupID());
         props.put(KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class.getName());
         props.put(VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-//        props.put(AUTO_OFFSET_RESET_CONFIG, "latest");
-//        props.put(PARTITION_ASSIGNMENT_STRATEGY_CONFIG, "???");
+        props.put(AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ENABLE_AUTO_COMMIT_CONFIG, false);
         return props;
+    }
+
+    private static String generateGroupID() {
+        return "KafkaWebClient-" + UUID.randomUUID();
     }
 }
