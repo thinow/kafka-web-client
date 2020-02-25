@@ -1,49 +1,51 @@
 package kafkawebclient;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.util.Assert;
 
 import java.util.Properties;
 
 import static java.lang.String.format;
 
+@Slf4j
 public class KafkaProducer {
 
-    private final static String BOOTSTRAP_SERVERS = "127.0.0.1:9092";
-    private final static String TOPIC = "test-topic";
-    private static final int MESSAGES_COUNT = 25;
-
     public static void main(String... args) throws Exception {
-        final Producer<Long, String> producer = createProducer();
-        long time = System.currentTimeMillis();
+        Assert.isTrue(args.length == 3, "command should contain 3 arguments");
 
-        try {
-            for (long index = 0; index < MESSAGES_COUNT; index++) {
-                final ProducerRecord<Long, String> record = new ProducerRecord<>(TOPIC, time + index,
+        final String servers = args[0];
+        final String topic = args[1];
+        final long count = Long.parseLong(args[2]);
+
+        produce(servers, topic, count);
+    }
+
+    private static void produce(String servers, String topic, long count) throws InterruptedException, java.util.concurrent.ExecutionException {
+        try (Producer<Long, String> producer = createProducer(servers)) {
+            final long time = System.currentTimeMillis();
+            for (long index = 0; index < count; index++) {
+                final ProducerRecord<Long, String> record = new ProducerRecord<>(topic, time + index,
                         format("{\"key\":\"value\",\"index\":%d}", index));
 
-                RecordMetadata metadata = producer.send(record).get();
+                final RecordMetadata metadata = producer.send(record).get();
 
-                long elapsedTime = System.currentTimeMillis() - time;
-                System.out.printf("sent record(key=%s value=%s) meta(partition=%d, offset=%d) time=%d\n",
-                        record.key(), record.value(), metadata.partition(),
-                        metadata.offset(), elapsedTime);
-
+                log.info("sent record(key={} value={}) meta(partition={}, offset={}) time={}", record.key(),
+                        record.value(), metadata.partition(), metadata.offset(), System.currentTimeMillis() - time);
             }
-        } finally {
             producer.flush();
-            producer.close();
         }
     }
 
-    private static Producer<Long, String> createProducer() {
+    private static Producer<Long, String> createProducer(final String servers) {
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, "KafkaExampleProducer");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, servers);
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, "KafkaWebClientProducer");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         return new org.apache.kafka.clients.producer.KafkaProducer<>(props);
