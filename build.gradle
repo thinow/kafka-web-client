@@ -29,3 +29,17 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+String[] DOCKER_COMPOSE_ARGS = [
+        'docker-compose',
+        '-f', 'development/docker-compose.yml',
+        '-p', 'kawc'
+]
+
+task devStart(type: Exec) {
+    commandLine DOCKER_COMPOSE_ARGS + ['up', '-d']
+}
+
+task devStop(type: Exec) {
+    commandLine DOCKER_COMPOSE_ARGS + ['down']
+}
