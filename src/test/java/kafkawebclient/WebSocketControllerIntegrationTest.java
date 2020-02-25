@@ -61,7 +61,7 @@ public class WebSocketControllerIntegrationTest {
     }
 
     @Test
-    public void receivesMessageFromSubscribedQueue() throws Exception {
+    public void receivesSingleMessageFromSubscribedQueue() throws Exception {
         // given
         final CompletableFuture<ConsumedMessage> response = subscribe(
                 QUEUES_PREFIX + "/consumed-message", ConsumedMessage.class);
@@ -69,12 +69,12 @@ public class WebSocketControllerIntegrationTest {
                 QUEUES_PREFIX + "/end", Object.class);
 
         // when
-        session.send("/start", new StartConsumingRequest("cluster", "topic", 10L));
+        session.send("/start", new StartConsumingRequest("127.0.0.1:9092", "test-topic", 1L));
         waitFor(response);
         waitFor(end);
 
         // then
-        assertThat(response.get().getTimestamp()).isNotEmpty();
+        assertThat(response.get().getValue()).isNotNull();
     }
 
     private <T> CompletableFuture<T> subscribe(String queue, Class<T> type) {
@@ -104,7 +104,7 @@ public class WebSocketControllerIntegrationTest {
         }
     }
 
-    private <T> T waitFor(CompletableFuture<T> future) throws InterruptedException, java.util.concurrent.ExecutionException, java.util.concurrent.TimeoutException {
-        return future.get(2, TimeUnit.SECONDS);
+    private <T> T waitFor(CompletableFuture<T> future) throws Exception {
+        return future.get(30, TimeUnit.SECONDS);
     }
 }

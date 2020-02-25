@@ -14,8 +14,8 @@ import static java.lang.String.format;
 public class KafkaProducer {
 
     private final static String BOOTSTRAP_SERVERS = "127.0.0.1:9092";
-    private final static String TOPIC = "foo";
-    private static final int MESSAGES_COUNT = 12;
+    private final static String TOPIC = "test-topic";
+    private static final int MESSAGES_COUNT = 25;
 
     public static void main(String... args) throws Exception {
         final Producer<Long, String> producer = createProducer();
