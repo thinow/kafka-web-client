@@ -12,14 +12,14 @@ import java.util.UUID;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.*;
 
 @Component
-public class KafkaConsumerFactory {
+public class KafkaPollerFactory {
 
-    public PollingSession consume(String bootstrapServers, Collection<String> topics) {
+    public KafkaPoller createPoller(String bootstrapServers, Collection<String> topics) {
         final Properties properties = createProperties(bootstrapServers);
         final Consumer<Long, String> consumer = new org.apache.kafka.clients.consumer.KafkaConsumer<>(properties);
         consumer.subscribe(topics);
 
-        return new PollingSession(consumer);
+        return new KafkaPoller(consumer);
     }
 
     private static Properties createProperties(final String bootstrapServers) {

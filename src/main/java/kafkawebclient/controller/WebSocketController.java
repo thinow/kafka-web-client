@@ -1,7 +1,7 @@
 package kafkawebclient.controller;
 
-import kafkawebclient.kafka.KafkaConsumerFactory;
-import kafkawebclient.kafka.PollingSession;
+import kafkawebclient.kafka.KafkaPoller;
+import kafkawebclient.kafka.KafkaPollerFactory;
 import kafkawebclient.model.StartConsumingRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,18 +18,18 @@ public class WebSocketController {
     private static final Logger LOG = LoggerFactory.getLogger(WebSocketController.class);
 
     private final SimpMessagingTemplate messagingTemplate;
-    private final KafkaConsumerFactory kafkaConsumerFactory;
+    private final KafkaPollerFactory kafkaPollerFactory;
 
-    public WebSocketController(SimpMessagingTemplate messagingTemplate, KafkaConsumerFactory kafkaConsumerFactory) {
+    public WebSocketController(SimpMessagingTemplate messagingTemplate, KafkaPollerFactory kafkaPollerFactory) {
         this.messagingTemplate = messagingTemplate;
-        this.kafkaConsumerFactory = kafkaConsumerFactory;
+        this.kafkaPollerFactory = kafkaPollerFactory;
     }
 
     @MessageMapping("/start")
     public void start(StartConsumingRequest request) throws Exception {
         LOG.debug("Received request : {}", request);
-        try (PollingSession session = kafkaConsumerFactory.consume(request.getCluster(), singleton(request.getTopic()))) {
-            session.poll(request.getMaxMessages())
+        try (KafkaPoller poller = kafkaPollerFactory.createPoller(request.getCluster(), singleton(request.getTopic()))) {
+            poller.poll(request.getMaxMessages())
                     .forEach(message -> messagingTemplate.convertAndSend(QUEUES_PREFIX + "/consumed-message", message));
         }
         messagingTemplate.convertAndSend(QUEUES_PREFIX + "/end", ""); // TODO send something more explicit than empty String

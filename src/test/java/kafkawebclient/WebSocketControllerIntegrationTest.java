@@ -1,6 +1,6 @@
 package kafkawebclient;
 
-import kafkawebclient.model.ConsumedMessage;
+import kafkawebclient.model.KafkaMessage;
 import kafkawebclient.model.StartConsumingRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,8 +63,8 @@ public class WebSocketControllerIntegrationTest {
     @Test
     public void receivesSingleMessageFromSubscribedQueue() throws Exception {
         // given
-        final CompletableFuture<ConsumedMessage> response = subscribe(
-                QUEUES_PREFIX + "/consumed-message", ConsumedMessage.class);
+        final CompletableFuture<KafkaMessage> response = subscribe(
+                QUEUES_PREFIX + "/consumed-message", KafkaMessage.class);
         final CompletableFuture<Object> end = subscribe(
                 QUEUES_PREFIX + "/end", Object.class);
 

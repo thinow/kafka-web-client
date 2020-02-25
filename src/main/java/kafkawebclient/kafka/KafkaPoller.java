@@ -1,6 +1,6 @@
 package kafkawebclient.kafka;
 
-import kafkawebclient.model.ConsumedMessage;
+import kafkawebclient.model.KafkaMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -12,35 +12,35 @@ import java.util.Iterator;
 import java.util.stream.LongStream;
 
 @Slf4j
-public class PollingSession implements AutoCloseable {
+public class KafkaPoller implements AutoCloseable {
 
     public static final Duration POLL_TIMEOUT = Duration.ofSeconds(1L);
 
-    private final Consumer<Long, String> consumer;
+    private final Consumer<Long, String> kafkaConsumer;
     private long maxMessages = 1L;
 
-    public PollingSession(Consumer<Long, String> consumer) {
-        this.consumer = consumer;
+    public KafkaPoller(Consumer<Long, String> kafkaConsumer) {
+        this.kafkaConsumer = kafkaConsumer;
     }
 
-    public PollingSession poll(long maxMessages) {
+    public KafkaPoller poll(long maxMessages) {
         this.maxMessages = maxMessages;
         return this;
     }
 
-    public void forEach(java.util.function.Consumer<ConsumedMessage> callback) {
-        log.debug("start consuming...");
+    public void forEach(java.util.function.Consumer<KafkaMessage> callback) {
+        log.debug("start polling...");
         long remaining = maxMessages;
         while (remaining > 0) {
-            final ConsumerRecords<Long, String> records = consumer.poll(POLL_TIMEOUT);
-            log.debug("consumed {} messages", records.count());
+            final ConsumerRecords<Long, String> records = kafkaConsumer.poll(POLL_TIMEOUT);
+            log.debug("fetched {} messages", records.count());
 
             final Iterator<ConsumerRecord<Long, String>> iterator = records.iterator();
 
             final long count = Math.min(records.count(), remaining);
             LongStream.range(0L, count)
                     .mapToObj(index -> iterator.next())
-                    .map(record -> new ConsumedMessage(
+                    .map(record -> new KafkaMessage(
                             0L, // TODO replace index with partition and offset
                             record.offset(),
                             computeUserReadableTimestamp(record),
@@ -60,7 +60,7 @@ public class PollingSession implements AutoCloseable {
 
     @Override
     public void close() {
-        log.debug("closing consumer");
-        consumer.close();
+        log.debug("closing poller");
+        kafkaConsumer.close();
     }
 }

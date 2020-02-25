@@ -1,6 +1,6 @@
 package kafkawebclient.kafka;
 
-import kafkawebclient.model.ConsumedMessage;
+import kafkawebclient.model.KafkaMessage;
 import lombok.Builder;
 import lombok.Data;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -21,7 +21,7 @@ import static org.apache.kafka.clients.consumer.OffsetResetStrategy.EARLIEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-class PollingSessionTest {
+class KafkaPollerTest {
 
     public static final Topic TOPIC = Topic.builder()
             .name("topic")
@@ -30,8 +30,8 @@ class PollingSessionTest {
 
     public static final long TIMESTAMP = 1582666339753L;
 
-    private final ArgumentCaptor<ConsumedMessage> captor = ArgumentCaptor.forClass(ConsumedMessage.class);
-    private Consumer<ConsumedMessage> callback = mock(Consumer.class);
+    private final ArgumentCaptor<KafkaMessage> captor = ArgumentCaptor.forClass(KafkaMessage.class);
+    private Consumer<KafkaMessage> callback = mock(Consumer.class);
 
     @Test
     void shouldFetchOneSingleMessage() {
@@ -40,12 +40,12 @@ class PollingSessionTest {
         kafkaConsumer.addRecord(createRecord(TOPIC, 0, "any-value"));
 
         // when
-        new PollingSession(kafkaConsumer).poll(1).forEach(callback);
+        new KafkaPoller(kafkaConsumer).poll(1).forEach(callback);
 
         // then
         verify(callback, times(1)).accept(captor.capture());
 
-        final ConsumedMessage message = captor.getValue();
+        final KafkaMessage message = captor.getValue();
         assertThat(message.getValue()).isEqualTo("any-value");
     }
 
@@ -60,12 +60,12 @@ class PollingSessionTest {
         kafkaConsumer.addRecord(createRecord(TOPIC, offset++, "baz"));
 
         // when
-        new PollingSession(kafkaConsumer).poll(3).forEach(callback);
+        new KafkaPoller(kafkaConsumer).poll(3).forEach(callback);
 
         // then
         verify(callback, times(3)).accept(captor.capture());
 
-        final List<ConsumedMessage> messages = captor.getAllValues();
+        final List<KafkaMessage> messages = captor.getAllValues();
         assertThat(messages).extracting("value").containsOnly("foo", "bar", "baz");
     }
 
@@ -78,10 +78,10 @@ class PollingSessionTest {
                 .forEach(offset -> kafkaConsumer.addRecord(createRecord(TOPIC, offset, "anything")));
 
         // when
-        new PollingSession(kafkaConsumer).poll(5).forEach(callback);
+        new KafkaPoller(kafkaConsumer).poll(5).forEach(callback);
 
         // then
-        verify(callback, times(5)).accept(any(ConsumedMessage.class));
+        verify(callback, times(5)).accept(any(KafkaMessage.class));
     }
 
     @Test
@@ -92,12 +92,12 @@ class PollingSessionTest {
         kafkaConsumer.addRecord(createRecord(TOPIC, 0, "string-value"));
 
         // when
-        new PollingSession(kafkaConsumer).poll(1).forEach(callback);
+        new KafkaPoller(kafkaConsumer).poll(1).forEach(callback);
 
         // then
         verify(callback).accept(captor.capture());
 
-        final ConsumedMessage message = captor.getValue();
+        final KafkaMessage message = captor.getValue();
         assertThat(message.getIndex()).isEqualTo(0L);
         assertThat(message.getOffset()).isEqualTo(0L);
         assertThat(message.getTimestamp()).isEqualTo("2020-02-25T21:32:19.753Z");

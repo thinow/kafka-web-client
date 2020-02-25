@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ConsumedMessage {
+public class KafkaMessage {
     private long index;
     private long offset;
     private String timestamp;
