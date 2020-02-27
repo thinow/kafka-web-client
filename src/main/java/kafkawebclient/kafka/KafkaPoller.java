@@ -16,10 +16,10 @@ public class KafkaPoller implements AutoCloseable {
 
     public static final Duration POLL_TIMEOUT = Duration.ofSeconds(1L);
 
-    private final Consumer<Long, String> kafkaConsumer;
+    private final Consumer<?, String> kafkaConsumer;
     private long maxMessages = 1L;
 
-    public KafkaPoller(Consumer<Long, String> kafkaConsumer) {
+    public KafkaPoller(Consumer<?, String> kafkaConsumer) {
         this.kafkaConsumer = kafkaConsumer;
     }
 
@@ -32,10 +32,10 @@ public class KafkaPoller implements AutoCloseable {
         log.debug("start polling...");
         long remaining = maxMessages;
         while (remaining > 0) {
-            final ConsumerRecords<Long, String> records = kafkaConsumer.poll(POLL_TIMEOUT);
+            final ConsumerRecords<?, String> records = kafkaConsumer.poll(POLL_TIMEOUT);
             log.debug("fetched {} messages", records.count());
 
-            final Iterator<ConsumerRecord<Long, String>> iterator = records.iterator();
+            final Iterator<? extends ConsumerRecord<?, String>> iterator = records.iterator();
 
             final long count = Math.min(records.count(), remaining);
             LongStream.range(0L, count)

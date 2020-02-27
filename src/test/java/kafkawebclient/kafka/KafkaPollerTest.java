@@ -36,7 +36,7 @@ class KafkaPollerTest {
     @Test
     void shouldFetchOneSingleMessage() {
         // given
-        final MockConsumer<Long, String> kafkaConsumer = createMockKafkaConsumer(EARLIEST, List.of(TOPIC));
+        final MockConsumer<String, String> kafkaConsumer = createMockKafkaConsumer(EARLIEST, List.of(TOPIC));
         kafkaConsumer.addRecord(createRecord(TOPIC, 0, "any-value"));
 
         // when
@@ -52,7 +52,7 @@ class KafkaPollerTest {
     @Test
     void shouldFetchMultipleMessages() {
         // given
-        final MockConsumer<Long, String> kafkaConsumer = createMockKafkaConsumer(EARLIEST, List.of(TOPIC));
+        final MockConsumer<String, String> kafkaConsumer = createMockKafkaConsumer(EARLIEST, List.of(TOPIC));
 
         int offset = 0;
         kafkaConsumer.addRecord(createRecord(TOPIC, offset++, "foo"));
@@ -72,7 +72,7 @@ class KafkaPollerTest {
     @Test
     void shouldFetchExpectedNumberOfMessages() {
         // given
-        final MockConsumer<Long, String> kafkaConsumer = createMockKafkaConsumer(EARLIEST, List.of(TOPIC));
+        final MockConsumer<String, String> kafkaConsumer = createMockKafkaConsumer(EARLIEST, List.of(TOPIC));
 
         IntStream.range(0, 10)
                 .forEach(offset -> kafkaConsumer.addRecord(createRecord(TOPIC, offset, "anything")));
@@ -87,7 +87,7 @@ class KafkaPollerTest {
     @Test
     void shouldConvertRecordToConsumedMessageObject() {
         // given
-        final MockConsumer<Long, String> kafkaConsumer = createMockKafkaConsumer(EARLIEST, List.of(TOPIC));
+        final MockConsumer<String, String> kafkaConsumer = createMockKafkaConsumer(EARLIEST, List.of(TOPIC));
 
         kafkaConsumer.addRecord(createRecord(TOPIC, 0, "string-value"));
 
@@ -112,8 +112,8 @@ class KafkaPollerTest {
         private Long beginningOffset;
     }
 
-    private MockConsumer<Long, String> createMockKafkaConsumer(OffsetResetStrategy strategy, Collection<Topic> topics) {
-        final MockConsumer<Long, String> kafkaConsumer = new MockConsumer<>(strategy);
+    private MockConsumer<String, String> createMockKafkaConsumer(OffsetResetStrategy strategy, Collection<Topic> topics) {
+        final MockConsumer<String, String> kafkaConsumer = new MockConsumer<>(strategy);
 
         for (Topic topic : topics) {
             final TopicPartition topicPartition = new TopicPartition(topic.getName(), topic.getPartition());
@@ -124,11 +124,11 @@ class KafkaPollerTest {
         return kafkaConsumer;
     }
 
-    private ConsumerRecord<Long, String> createRecord(Topic topic, long offset, String value) {
+    private ConsumerRecord<String, String> createRecord(Topic topic, long offset, String value) {
         final long checksum = 0;
         final int serializedKeySize = 0;
         final int serializedValueSize = 0;
-        final Long key = 0L;
+        final String key = "any-key";
 
         return new ConsumerRecord<>(
                 topic.getName(),
