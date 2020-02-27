@@ -106,7 +106,6 @@ class KafkaPollerTest {
         verify(callback).accept(captor.capture());
 
         final KafkaMessage message = captor.getValue();
-        assertThat(message.getIndex()).isEqualTo(0L);
         assertThat(message.getPartition()).isEqualTo(expectedPartition);
         assertThat(message.getOffset()).isEqualTo(expectedOffset);
         assertThat(message.getTimestamp()).isEqualTo("2020-02-25T21:32:19.753Z");

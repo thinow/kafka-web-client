@@ -30,7 +30,6 @@
             const row = body.insertRow()
 
             let index = 0
-            row.insertCell(index++).appendChild(document.createTextNode(message.index))
             row.insertCell(index++).appendChild(document.createTextNode(message.partition))
             row.insertCell(index++).appendChild(document.createTextNode(message.offset))
             row.insertCell(index++).appendChild(document.createTextNode(message.timestamp))
@@ -127,7 +126,6 @@
             <table id="messages-table" class="table" style="display: none">
                 <thead>
                 <tr>
-                    <th>Index</th>
                     <th>Partition</th>
                     <th>Offset</th>
                     <th>Time</th>
@@ -136,7 +134,6 @@
                 </thead>
                 <tfoot>
                 <tr>
-                    <th>Index</th>
                     <th>Partition</th>
                     <th>Offset</th>
                     <th>Time</th>

@@ -41,7 +41,6 @@ public class KafkaPoller implements AutoCloseable {
             LongStream.range(0L, count)
                     .mapToObj(index -> iterator.next())
                     .map(record -> new KafkaMessage(
-                            0L, // TODO increment index
                             record.partition(),
                             record.offset(),
                             computeUserReadableTimestamp(record),
