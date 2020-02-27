@@ -87,9 +87,17 @@ class KafkaPollerTest {
     @Test
     void shouldConvertRecordToConsumedMessageObject() {
         // given
-        final MockConsumer<String, String> kafkaConsumer = createMockKafkaConsumer(EARLIEST, List.of(TOPIC));
+        final int expectedPartition = 123;
+        final long expectedOffset = 456L;
 
-        kafkaConsumer.addRecord(createRecord(TOPIC, 0, "string-value"));
+        final Topic topic = Topic.builder()
+                .name("topic")
+                .partition(expectedPartition)
+                .beginningOffset(expectedOffset)
+                .build();
+        final MockConsumer<String, String> kafkaConsumer = createMockKafkaConsumer(EARLIEST, List.of(topic));
+
+        kafkaConsumer.addRecord(createRecord(topic, expectedOffset, "string-value"));
 
         // when
         new KafkaPoller(kafkaConsumer).poll(1).forEach(callback);
@@ -99,7 +107,8 @@ class KafkaPollerTest {
 
         final KafkaMessage message = captor.getValue();
         assertThat(message.getIndex()).isEqualTo(0L);
-        assertThat(message.getOffset()).isEqualTo(0L);
+        assertThat(message.getPartition()).isEqualTo(expectedPartition);
+        assertThat(message.getOffset()).isEqualTo(expectedOffset);
         assertThat(message.getTimestamp()).isEqualTo("2020-02-25T21:32:19.753Z");
         assertThat(message.getValue()).isEqualTo("string-value");
     }
