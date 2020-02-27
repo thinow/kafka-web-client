@@ -29,10 +29,12 @@
             const body = table.getElementsByTagName('tbody')[0]
             const row = body.insertRow()
 
-            row.insertCell(0).appendChild(document.createTextNode(message.index))
-            row.insertCell(1).appendChild(document.createTextNode(message.offset))
-            row.insertCell(2).appendChild(document.createTextNode(message.timestamp))
-            row.insertCell(3).appendChild(document.createTextNode(JSON.stringify(message.value)))
+            let index = 0
+            row.insertCell(index++).appendChild(document.createTextNode(message.index))
+            row.insertCell(index++).appendChild(document.createTextNode(message.partition))
+            row.insertCell(index++).appendChild(document.createTextNode(message.offset))
+            row.insertCell(index++).appendChild(document.createTextNode(message.timestamp))
+            row.insertCell(index++).appendChild(document.createTextNode(JSON.stringify(message.value)))
         }
 
         const sockJS = new SockJS('/sock-js');
@@ -126,6 +128,7 @@
                 <thead>
                 <tr>
                     <th>Index</th>
+                    <th>Partition</th>
                     <th>Offset</th>
                     <th>Time</th>
                     <th>Value</th>
@@ -134,6 +137,7 @@
                 <tfoot>
                 <tr>
                     <th>Index</th>
+                    <th>Partition</th>
                     <th>Offset</th>
                     <th>Time</th>
                     <th>Value</th>
