@@ -9,4 +9,5 @@ public class StartConsumingRequest {
     private String cluster; // TODO rename to server or servers
     private String topic;
     private long maxMessages;
+    private FetchMethod method;
 }

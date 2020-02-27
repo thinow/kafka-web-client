@@ -11,7 +11,8 @@
         const parameters = {
             cluster: '',
             topic: '',
-            maxMessages: 10
+            maxMessages: 10,
+            method: 'latest'
         }
 
         function getElement(id) {
@@ -79,6 +80,7 @@
             getElement("field-cluster").addEventListener("keyup", event => onFieldChanged('cluster', event))
             getElement("field-topic").addEventListener("keyup", event => onFieldChanged('topic', event))
             getElement("field-maxNumberMessages").addEventListener("change", event => onFieldChanged('maxMessages', event))
+            getElement("field-method").addEventListener("change", event => onFieldChanged('method', event))
             getElement("start-button").addEventListener("click", onStartButtonClick)
         }
     </script>
@@ -113,6 +115,17 @@
                             <option>25</option>
                             <option>50</option>
                             <option>100</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label">Fetch method</label>
+                <div class="control">
+                    <div class="select">
+                        <select id="field-method">
+                            <option value="latest" selected>new incoming messages</option>
+                            <option value="oldest">oldest messages</option>
                         </select>
                     </div>
                 </div>

@@ -2,12 +2,15 @@ package kafkawebclient.controller;
 
 import kafkawebclient.kafka.KafkaPoller;
 import kafkawebclient.kafka.KafkaPollerFactory;
+import kafkawebclient.model.FetchMethod;
 import kafkawebclient.model.StartConsumingRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+
+import java.util.Set;
 
 import static java.util.Collections.singleton;
 import static kafkawebclient.config.WebSocketConfig.QUEUES_PREFIX;
@@ -26,9 +29,14 @@ public class WebSocketController {
     }
 
     @MessageMapping("/start")
-    public void start(StartConsumingRequest request) throws Exception {
+    public void start(StartConsumingRequest request) {
         LOG.debug("Received request : {}", request);
-        try (KafkaPoller poller = kafkaPollerFactory.createPoller(request.getCluster(), singleton(request.getTopic()))) {
+
+        final String cluster = request.getCluster();
+        final Set<String> topics = singleton(request.getTopic());
+        final FetchMethod method = request.getMethod();
+
+        try (KafkaPoller poller = kafkaPollerFactory.createPoller(cluster, topics, method)) {
             poller.poll(request.getMaxMessages())
                     .forEach(message -> messagingTemplate.convertAndSend(QUEUES_PREFIX + "/consumed-message", message));
         }

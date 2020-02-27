@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static kafkawebclient.config.WebSocketConfig.QUEUES_PREFIX;
+import static kafkawebclient.model.FetchMethod.OLDEST;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -69,7 +70,7 @@ public class WebSocketControllerIntegrationTest {
                 QUEUES_PREFIX + "/end", Object.class);
 
         // when
-        session.send("/start", new StartConsumingRequest("127.0.0.1:9092", "test-topic", 1L));
+        session.send("/start", new StartConsumingRequest("127.0.0.1:9092", "test-topic", 1L, OLDEST));
         waitFor(response);
         waitFor(end);
 
