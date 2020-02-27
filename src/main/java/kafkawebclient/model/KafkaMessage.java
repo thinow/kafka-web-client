@@ -12,5 +12,5 @@ public class KafkaMessage {
     private int partition;
     private long offset;
     private String timestamp;
-    private Object value;
+    private String value;
 }

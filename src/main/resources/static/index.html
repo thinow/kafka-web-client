@@ -34,7 +34,7 @@
             row.insertCell(index++).appendChild(document.createTextNode(message.partition))
             row.insertCell(index++).appendChild(document.createTextNode(message.offset))
             row.insertCell(index++).appendChild(document.createTextNode(message.timestamp))
-            row.insertCell(index++).appendChild(document.createTextNode(JSON.stringify(message.value)))
+            row.insertCell(index++).appendChild(document.createTextNode(message.value))
         }
 
         const sockJS = new SockJS('/sock-js');
