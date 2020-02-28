@@ -2,8 +2,10 @@ package kafkawebclient.controller;
 
 import kafkawebclient.kafka.KafkaPoller;
 import kafkawebclient.kafka.KafkaPollerFactory;
+import kafkawebclient.model.EndResponse;
 import kafkawebclient.model.FetchMethod;
 import kafkawebclient.model.StartConsumingRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -15,6 +17,7 @@ import java.util.Set;
 import static java.util.Collections.singleton;
 import static kafkawebclient.config.WebSocketConfig.QUEUES_PREFIX;
 
+@Slf4j
 @Controller
 public class WebSocketController {
 
@@ -36,10 +39,18 @@ public class WebSocketController {
         final Set<String> topics = singleton(request.getTopic());
         final FetchMethod method = request.getMethod();
 
-        try (KafkaPoller poller = kafkaPollerFactory.createPoller(cluster, topics, method)) {
-            poller.poll(request.getMaxMessages())
-                    .forEach(message -> messagingTemplate.convertAndSend(QUEUES_PREFIX + "/consumed-message", message));
+        try {
+            try (KafkaPoller poller = kafkaPollerFactory.createPoller(cluster, topics, method)) {
+                poller.poll(request.getMaxMessages()).forEach(message -> send("/consumed-message", message));
+            }
+            send("/end", EndResponse.success());
+        } catch (Exception cause) {
+            log.error("Error when consuming", cause);
+            send("/end", EndResponse.error(cause));
         }
-        messagingTemplate.convertAndSend(QUEUES_PREFIX + "/end", ""); // TODO send something more explicit than empty String
+    }
+
+    private void send(String queue, Object payload) {
+        messagingTemplate.convertAndSend(QUEUES_PREFIX + queue, payload);
     }
 }
