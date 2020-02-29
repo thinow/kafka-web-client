@@ -25,6 +25,11 @@
             table.replaceChild(document.createElement('tbody'), body)
         }
 
+        function clearErrorDialog() {
+            getElement("error-dialog").style.display = 'none'
+            getElement("error-dialog-details").innerText = ''
+        }
+
         function addInTable(message) {
             const table = getElement("messages-table")
             const body = table.getElementsByTagName('tbody')[0]
@@ -35,6 +40,11 @@
             row.insertCell(index++).appendChild(document.createTextNode(message.offset))
             row.insertCell(index++).appendChild(document.createTextNode(message.timestamp))
             row.insertCell(index++).appendChild(document.createTextNode(message.value))
+        }
+
+        function displayError(message) {
+            getElement("error-dialog").style.display = null
+            getElement("error-dialog-details").innerText = message
         }
 
         const sockJS = new SockJS('/sock-js');
@@ -53,10 +63,15 @@
                 addInTable(JSON.parse(payload.body))
             })
 
-            socket.subscribe('/queue/end', function () {
-                console.log('socket: end')
+            socket.subscribe('/queue/end', function (payload) {
+                console.log('socket: end', payload)
                 getElement("progress-bar").value = 100
                 getElement("start-button").className = getElement("start-button").className.replace(" is-loading", "")
+
+                const response = JSON.parse(payload.body)
+                if (response.status === 'error') {
+                    displayError(response.message)
+                }
             })
         });
 
@@ -72,6 +87,7 @@
             getElement("progress-bar").value = 0
             getElement("messages-table").style.display = 'none'
             clearTable()
+            clearErrorDialog()
             socket.send('/start', {}, JSON.stringify(parameters))
         }
 
@@ -131,6 +147,10 @@
                 </div>
             </div>
             <button id="start-button" class="button is-primary" disabled>Start</button>
+        </div>
+        <div id="error-dialog" class="notification is-danger" style="display: none">
+            <p style="font-weight: bold">An error occurred :</p>
+            <p id="error-dialog-details"></p>
         </div>
         <div class="content">
             <progress id="progress-bar" class="progress is-primary" value="0" max="100">progress</progress>
