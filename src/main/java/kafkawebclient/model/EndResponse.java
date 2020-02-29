@@ -3,6 +3,8 @@ package kafkawebclient.model;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
 public class EndResponse {
@@ -15,10 +17,18 @@ public class EndResponse {
                 .build();
     }
 
-    public static EndResponse error(Throwable cause) {
+    public static EndResponse error(Throwable throwable) {
         return EndResponse.builder()
                 .status("error")
-                .message(cause.getMessage())
+                .message(String.join(". ", findMessages(throwable)))
                 .build();
+    }
+
+    private static List<String> findMessages(Throwable throwable) {
+        if (throwable.getCause() == null) {
+            return List.of(throwable.getMessage());
+        } else {
+            return List.of(throwable.getMessage(), throwable.getCause().getMessage());
+        }
     }
 }
