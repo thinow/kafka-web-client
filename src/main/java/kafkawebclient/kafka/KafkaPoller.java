@@ -7,7 +7,6 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Iterator;
 import java.util.stream.LongStream;
@@ -15,14 +14,14 @@ import java.util.stream.LongStream;
 @Slf4j
 public class KafkaPoller implements AutoCloseable {
 
-    public static final Duration OVERALL_TIMEOUT = Duration.ofSeconds(5);
-    public static final Duration POLL_TIMEOUT = Duration.ofSeconds(1);
-
     private final Consumer<?, String> kafkaConsumer;
+    private final KafkaPollerConfiguration configuration;
+
     private long maxMessages = 1L;
 
-    public KafkaPoller(Consumer<?, String> kafkaConsumer) {
+    public KafkaPoller(Consumer<?, String> kafkaConsumer, KafkaPollerConfiguration configuration) {
         this.kafkaConsumer = kafkaConsumer;
+        this.configuration = configuration;
     }
 
     public KafkaPoller poll(long maxMessages) {
@@ -36,9 +35,9 @@ public class KafkaPoller implements AutoCloseable {
 
         long remaining = maxMessages;
         while (remaining > 0) {
-            timeOutIfDelayHasBeenReached(startTime + OVERALL_TIMEOUT.toMillis());
+            timeOutIfDelayHasBeenReached(startTime);
 
-            final ConsumerRecords<?, String> records = kafkaConsumer.poll(POLL_TIMEOUT);
+            final ConsumerRecords<?, String> records = kafkaConsumer.poll(configuration.getPollTimeout());
             log.trace("fetched {} messages", records.count());
 
             final Iterator<? extends ConsumerRecord<?, String>> iterator = records.iterator();
@@ -46,23 +45,28 @@ public class KafkaPoller implements AutoCloseable {
             final long count = Math.min(records.count(), remaining);
             LongStream.range(0L, count)
                     .mapToObj(index -> iterator.next())
-                    .map(record -> new KafkaMessage(
-                            record.partition(),
-                            record.offset(),
-                            computeUserReadableTimestamp(record),
-                            record.value()
-                    ))
+                    .map(this::transformRecordToKafkaMessage)
                     .forEach(callback);
 
             remaining -= count;
         }
     }
 
-    private void timeOutIfDelayHasBeenReached(final long maxTime) {
+    private void timeOutIfDelayHasBeenReached(long startTime) {
         final long now = System.currentTimeMillis();
-        if (now > maxTime) {
+        final long delay = configuration.getSessionTimeout().toMillis();
+        if (now > startTime + delay) {
             throw new KafkaPollingTimedOut();
         }
+    }
+
+    private KafkaMessage transformRecordToKafkaMessage(ConsumerRecord<?, String> record) {
+        return new KafkaMessage(
+                record.partition(),
+                record.offset(),
+                computeUserReadableTimestamp(record),
+                record.value()
+        );
     }
 
     private String computeUserReadableTimestamp(ConsumerRecord<?, ?> record) {

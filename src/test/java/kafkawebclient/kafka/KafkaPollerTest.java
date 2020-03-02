@@ -31,6 +31,8 @@ class KafkaPollerTest {
             .beginningOffset(0L)
             .build();
 
+    public static final KafkaPollerConfiguration CONFIGURATION = new KafkaPollerConfiguration(100, 50);
+
     public static final long TIMESTAMP = 1582666339753L;
 
     private final ArgumentCaptor<KafkaMessage> captor = ArgumentCaptor.forClass(KafkaMessage.class);
@@ -43,7 +45,7 @@ class KafkaPollerTest {
         kafkaConsumer.addRecord(createRecord(TOPIC, 0, "any-value"));
 
         // when
-        new KafkaPoller(kafkaConsumer).poll(1).forEach(callback);
+        new KafkaPoller(kafkaConsumer, CONFIGURATION).poll(1).forEach(callback);
 
         // then
         verify(callback, times(1)).accept(captor.capture());
@@ -63,7 +65,7 @@ class KafkaPollerTest {
         kafkaConsumer.addRecord(createRecord(TOPIC, offset++, "baz"));
 
         // when
-        new KafkaPoller(kafkaConsumer).poll(3).forEach(callback);
+        new KafkaPoller(kafkaConsumer, CONFIGURATION).poll(3).forEach(callback);
 
         // then
         verify(callback, times(3)).accept(captor.capture());
@@ -81,7 +83,7 @@ class KafkaPollerTest {
                 .forEach(offset -> kafkaConsumer.addRecord(createRecord(TOPIC, offset, "anything")));
 
         // when
-        new KafkaPoller(kafkaConsumer).poll(5).forEach(callback);
+        new KafkaPoller(kafkaConsumer, CONFIGURATION).poll(5).forEach(callback);
 
         // then
         verify(callback, times(5)).accept(any(KafkaMessage.class));
@@ -103,7 +105,7 @@ class KafkaPollerTest {
         kafkaConsumer.addRecord(createRecord(topic, expectedOffset, "string-value"));
 
         // when
-        new KafkaPoller(kafkaConsumer).poll(1).forEach(callback);
+        new KafkaPoller(kafkaConsumer, CONFIGURATION).poll(1).forEach(callback);
 
         // then
         verify(callback).accept(captor.capture());
@@ -121,7 +123,7 @@ class KafkaPollerTest {
         final MockConsumer<String, String> kafkaConsumer = createMockKafkaConsumer(EARLIEST, List.of(TOPIC));
 
         // when
-        final ThrowingCallable callable = () -> new KafkaPoller(kafkaConsumer).forEach(callback);
+        final ThrowingCallable callable = () -> new KafkaPoller(kafkaConsumer, CONFIGURATION).forEach(callback);
 
         // then
         assertThatThrownBy(callable).isInstanceOf(KafkaPollingTimedOut.class);

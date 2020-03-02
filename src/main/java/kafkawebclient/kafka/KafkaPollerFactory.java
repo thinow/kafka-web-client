@@ -15,12 +15,18 @@ import static org.apache.kafka.clients.consumer.ConsumerConfig.*;
 @Component
 public class KafkaPollerFactory {
 
+    private final KafkaPollerConfiguration configuration;
+
+    public KafkaPollerFactory(KafkaPollerConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
     public KafkaPoller createPoller(String bootstrapServers, Collection<String> topics, FetchMethod method) {
         final Properties properties = createProperties(bootstrapServers, method);
         final Consumer<?, String> consumer = new org.apache.kafka.clients.consumer.KafkaConsumer<>(properties);
         consumer.subscribe(topics);
 
-        return new KafkaPoller(consumer);
+        return new KafkaPoller(consumer, configuration);
     }
 
     private static Properties createProperties(final String bootstrapServers, FetchMethod method) {
