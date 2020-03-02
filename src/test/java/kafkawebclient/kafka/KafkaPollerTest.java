@@ -1,5 +1,6 @@
 package kafkawebclient.kafka;
 
+import kafkawebclient.kafka.error.KafkaPollingTimedOut;
 import kafkawebclient.model.KafkaMessage;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +20,8 @@ import java.util.stream.IntStream;
 
 import static org.apache.kafka.clients.consumer.OffsetResetStrategy.EARLIEST;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import static org.mockito.Mockito.*;
 
 class KafkaPollerTest {
@@ -110,6 +113,18 @@ class KafkaPollerTest {
         assertThat(message.getOffset()).isEqualTo(expectedOffset);
         assertThat(message.getTimestamp()).isEqualTo("2020-02-25T21:32:19.753Z");
         assertThat(message.getValue()).isEqualTo("string-value");
+    }
+
+    @Test
+    void shouldTimeOutWhenTopicIsEmpty() {
+        // given
+        final MockConsumer<String, String> kafkaConsumer = createMockKafkaConsumer(EARLIEST, List.of(TOPIC));
+
+        // when
+        final ThrowingCallable callable = () -> new KafkaPoller(kafkaConsumer).forEach(callback);
+
+        // then
+        assertThatThrownBy(callable).isInstanceOf(KafkaPollingTimedOut.class);
     }
 
     @Data

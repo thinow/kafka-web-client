@@ -1,5 +1,6 @@
 package kafkawebclient.kafka;
 
+import kafkawebclient.kafka.error.KafkaPollingTimedOut;
 import kafkawebclient.model.KafkaMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -14,7 +15,8 @@ import java.util.stream.LongStream;
 @Slf4j
 public class KafkaPoller implements AutoCloseable {
 
-    public static final Duration POLL_TIMEOUT = Duration.ofSeconds(1L);
+    public static final Duration OVERALL_TIMEOUT = Duration.ofSeconds(5);
+    public static final Duration POLL_TIMEOUT = Duration.ofSeconds(1);
 
     private final Consumer<?, String> kafkaConsumer;
     private long maxMessages = 1L;
@@ -30,10 +32,14 @@ public class KafkaPoller implements AutoCloseable {
 
     public void forEach(java.util.function.Consumer<KafkaMessage> callback) {
         log.debug("start polling...");
+        final long startTime = System.currentTimeMillis();
+
         long remaining = maxMessages;
         while (remaining > 0) {
+            timeOutIfDelayHasBeenReached(startTime + OVERALL_TIMEOUT.toMillis());
+
             final ConsumerRecords<?, String> records = kafkaConsumer.poll(POLL_TIMEOUT);
-            log.debug("fetched {} messages", records.count());
+            log.trace("fetched {} messages", records.count());
 
             final Iterator<? extends ConsumerRecord<?, String>> iterator = records.iterator();
 
@@ -49,6 +55,13 @@ public class KafkaPoller implements AutoCloseable {
                     .forEach(callback);
 
             remaining -= count;
+        }
+    }
+
+    private void timeOutIfDelayHasBeenReached(final long maxTime) {
+        final long now = System.currentTimeMillis();
+        if (now > maxTime) {
+            throw new KafkaPollingTimedOut();
         }
     }
 
