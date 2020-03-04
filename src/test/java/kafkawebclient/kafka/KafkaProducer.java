@@ -1,4 +1,4 @@
-package kafkawebclient;
+package kafkawebclient.kafka;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.Producer;
@@ -17,7 +17,7 @@ import static java.lang.String.format;
 public class KafkaProducer {
 
     public static void main(String... args) throws Exception {
-        Assert.isTrue(args.length == 3, "command should contain 3 arguments");
+        Assert.isTrue(args.length == 3, "command should contain 3 arguments : servers, topic, count");
 
         final String servers = args[0];
         final String topic = args[1];
@@ -26,7 +26,7 @@ public class KafkaProducer {
         produce(servers, topic, count);
     }
 
-    private static void produce(String servers, String topic, long count) throws InterruptedException, java.util.concurrent.ExecutionException {
+    public static void produce(String servers, String topic, long count) throws InterruptedException, java.util.concurrent.ExecutionException {
         try (Producer<Long, String> producer = createProducer(servers)) {
             final long time = System.currentTimeMillis();
             for (long index = 0; index < count; index++) {
@@ -35,8 +35,9 @@ public class KafkaProducer {
 
                 final RecordMetadata metadata = producer.send(record).get();
 
-                log.info("sent record(key={} value={}) meta(partition={}, offset={}) time={}", record.key(),
-                        record.value(), metadata.partition(), metadata.offset(), System.currentTimeMillis() - time);
+                log.info("sent topic(name={}) record(key={} value={}) meta(partition={}, offset={}) time={}", topic,
+                        record.key(), record.value(), metadata.partition(), metadata.offset(),
+                        System.currentTimeMillis() - time);
             }
             producer.flush();
         }

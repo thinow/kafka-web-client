@@ -1,5 +1,6 @@
 package kafkawebclient;
 
+import kafkawebclient.kafka.KafkaProducer;
 import kafkawebclient.model.KafkaMessage;
 import kafkawebclient.model.StartConsumingRequest;
 import org.junit.jupiter.api.AfterEach;
@@ -16,6 +17,7 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.lang.reflect.Type;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -27,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class WebSocketControllerIntegrationTest {
 
+    public static final String KAFKA_SERVER = "127.0.0.1:9092";
     @LocalServerPort
     private int port;
 
@@ -64,13 +67,17 @@ public class WebSocketControllerIntegrationTest {
     @Test
     public void receivesSingleMessageFromSubscribedQueue() throws Exception {
         // given
+        final String topic = "kawc-test-topic-" + UUID.randomUUID();
+
+        KafkaProducer.produce(KAFKA_SERVER, topic, 1L);
+
         final CompletableFuture<KafkaMessage> response = subscribe(
                 QUEUES_PREFIX + "/consumed-message", KafkaMessage.class);
         final CompletableFuture<Object> end = subscribe(
                 QUEUES_PREFIX + "/end", Object.class);
 
         // when
-        session.send("/start", new StartConsumingRequest("127.0.0.1:9092", "test-topic", 1L, OLDEST));
+        session.send("/start", new StartConsumingRequest(KAFKA_SERVER, topic, 1L, OLDEST));
         waitFor(response);
         waitFor(end);
 
