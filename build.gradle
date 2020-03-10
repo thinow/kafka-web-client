@@ -43,3 +43,10 @@ task devStart(type: Exec) {
 task devStop(type: Exec) {
     commandLine DOCKER_COMPOSE_ARGS + ['down']
 }
+
+task buildDocker(type: Exec) {
+    dependsOn build
+    commandLine 'rm', '-rf', './docker/context'
+    commandLine 'mkdir', '-p', './docker/context'
+    commandLine 'cp', './build/libs/kafka-web-client.jar', './docker/context/kafka-web-client.jar'
+}
