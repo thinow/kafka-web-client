@@ -53,5 +53,5 @@ task prepareDocker(type: Exec) {
 
 task buildDocker(type: Exec) {
     dependsOn prepareDocker
-    commandLine 'docker', 'build', './docker', '-t', 'kafka-web-client'
+    commandLine 'docker', 'build', './docker', '-t', 'thinow/kafka-web-client'
 }
